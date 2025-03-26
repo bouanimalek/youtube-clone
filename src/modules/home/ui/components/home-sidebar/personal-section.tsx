@@ -17,6 +17,7 @@ import {
   ThumbsUpIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useClerk, useAuth } from "@clerk/nextjs";
 
 const items = [
   {
@@ -35,11 +36,14 @@ const items = [
     title: "All playlists",
     url: "/playlists",
     icon: ListVideoIcon,
-    auto: true,
+    auth: true,
   },
 ];
 
 export const PersonalSection = () => {
+  const clerk = useClerk();
+  const { isSignedIn } = useAuth();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>You</SidebarGroupLabel>
@@ -51,7 +55,12 @@ export const PersonalSection = () => {
                 tooltip={item.title}
                 asChild
                 isActive={false} // TODO: Change to look at current pathname
-                onClick={() => {}} // TODO: Do something on click
+                onClick={(e) => {
+                  if (!isSignedIn && item.auth) {
+                    e.preventDefault();
+                    clerk.openSignIn();
+                  }
+                }}
               >
                 <Link href={item.url} className="flex items-center gap-4">
                   <item.icon />
